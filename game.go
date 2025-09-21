@@ -29,10 +29,12 @@ type Game struct {
 	running       bool
 	lastUpdate    time.Time
 	config        GameConfig
+	theme         Theme
 }
 
-func (g *Game) init(config GameConfig) {
+func (g *Game) init(config GameConfig, theme Theme) {
 	g.config = config
+	g.theme = theme
 	g.width, g.height = termbox.Size()
 	g.ball = Ball{
 		x:  float64(g.width) / 2,
@@ -204,42 +206,42 @@ func (g *Game) moveLeftPaddleDown(deltaTime float64) {
 }
 
 func (g *Game) draw() {
-	termbox.Clear(termbox.ColorDefault, termbox.ColorDefault)
+	termbox.Clear(g.theme.TextColor, g.theme.BgColor)
 
 	for x := 0; x < g.width; x++ {
-		termbox.SetCell(x, 0, '═', termbox.ColorWhite, termbox.ColorDefault)
-		termbox.SetCell(x, g.height-1, '═', termbox.ColorWhite, termbox.ColorDefault)
+		termbox.SetCell(x, 0, '═', g.theme.BorderColor, g.theme.BgColor)
+		termbox.SetCell(x, g.height-1, '═', g.theme.BorderColor, g.theme.BgColor)
 	}
 	for y := 0; y < g.height; y++ {
-		termbox.SetCell(0, y, '║', termbox.ColorWhite, termbox.ColorDefault)
-		termbox.SetCell(g.width-1, y, '║', termbox.ColorWhite, termbox.ColorDefault)
+		termbox.SetCell(0, y, '║', g.theme.BorderColor, g.theme.BgColor)
+		termbox.SetCell(g.width-1, y, '║', g.theme.BorderColor, g.theme.BgColor)
 	}
-	termbox.SetCell(0, 0, '╔', termbox.ColorWhite, termbox.ColorDefault)
-	termbox.SetCell(g.width-1, 0, '╗', termbox.ColorWhite, termbox.ColorDefault)
-	termbox.SetCell(0, g.height-1, '╚', termbox.ColorWhite, termbox.ColorDefault)
-	termbox.SetCell(g.width-1, g.height-1, '╝', termbox.ColorWhite, termbox.ColorDefault)
+	termbox.SetCell(0, 0, '╔', g.theme.BorderColor, g.theme.BgColor)
+	termbox.SetCell(g.width-1, 0, '╗', g.theme.BorderColor, g.theme.BgColor)
+	termbox.SetCell(0, g.height-1, '╚', g.theme.BorderColor, g.theme.BgColor)
+	termbox.SetCell(g.width-1, g.height-1, '╝', g.theme.BorderColor, g.theme.BgColor)
 
 	for y := 2; y < g.height-1; y += 3 {
-		termbox.SetCell(g.width/2, y, '┊', termbox.ColorBlue, termbox.ColorDefault)
+		termbox.SetCell(g.width/2, y, '┊', g.theme.DividerColor, g.theme.BgColor)
 	}
 
 	for i := 0; i < g.config.PaddleHeight; i++ {
 		if g.leftPaddle.y+i >= 1 && g.leftPaddle.y+i < g.height-1 {
-			termbox.SetCell(g.leftPaddle.x, g.leftPaddle.y+i, '█', termbox.ColorGreen, termbox.ColorDefault)
+			termbox.SetCell(g.leftPaddle.x, g.leftPaddle.y+i, '█', g.theme.PlayerColor, g.theme.BgColor)
 		}
 		if g.rightPaddle.y+i >= 1 && g.rightPaddle.y+i < g.height-1 {
-			termbox.SetCell(g.rightPaddle.x, g.rightPaddle.y+i, '█', termbox.ColorRed, termbox.ColorDefault)
+			termbox.SetCell(g.rightPaddle.x, g.rightPaddle.y+i, '█', g.theme.BotColor, g.theme.BgColor)
 		}
 	}
 
 	bx, by := int(math.Round(g.ball.x)), int(math.Round(g.ball.y))
 	if bx >= 1 && bx < g.width-1 && by >= 1 && by < g.height-1 {
-		termbox.SetCell(bx, by, '●', termbox.ColorYellow|termbox.AttrBold, termbox.ColorDefault)
+		termbox.SetCell(bx, by, '●', g.theme.BallColor, g.theme.BgColor)
 	}
 
 	scoreText := fmt.Sprintf("PLAYER: %02d  │  BOT: %02d", g.leftScore, g.rightScore)
 	for i, ch := range scoreText {
-		termbox.SetCell(g.width/2-len(scoreText)/2+i, 1, ch, termbox.ColorWhite|termbox.AttrBold, termbox.ColorDefault)
+		termbox.SetCell(g.width/2-len(scoreText)/2+i, 1, ch, g.theme.TextColor, g.theme.BgColor)
 	}
 
 	termbox.Flush()
@@ -296,17 +298,17 @@ func runGameLoop(game *Game) {
 }
 
 func showGameOverScreen(g *Game) {
-	termbox.Clear(termbox.ColorDefault, termbox.ColorDefault)
+	termbox.Clear(g.theme.TextColor, g.theme.BgColor)
 	w, h := g.width, g.height
 
 	var winner string
 	var color termbox.Attribute
 	if g.leftScore >= 10 {
 		winner = "YOU WIN!"
-		color = termbox.ColorGreen | termbox.AttrBold
+		color = g.theme.PlayerColor
 	} else {
 		winner = "BOT WINS!"
-		color = termbox.ColorRed | termbox.AttrBold
+		color = g.theme.BotColor
 	}
 
 	lines := []string{
@@ -321,11 +323,11 @@ func showGameOverScreen(g *Game) {
 
 	for i, line := range lines {
 		for j, ch := range line {
-			col := termbox.ColorWhite
+			col := g.theme.TextColor
 			if i == 3 {
-				col = color
+				col = color | termbox.AttrBold
 			}
-			termbox.SetCell(w/2-len(line)/2+j, h/2-len(lines)/2+i, ch, col, termbox.ColorDefault)
+			termbox.SetCell(w/2-len(line)/2+j, h/2-len(lines)/2+i, ch, col, g.theme.BgColor)
 		}
 	}
 	termbox.Flush()

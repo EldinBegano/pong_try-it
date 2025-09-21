@@ -1,6 +1,5 @@
 package main
 
-
 import "github.com/nsf/termbox-go"
 
 type Theme struct {
@@ -24,13 +23,13 @@ var Themes = map[string]Theme{
 		BgColor:      termbox.ColorBlack,
 	},
 	"theme-to": {
-		BorderColor:  termbox.ColorCyan,       
-		DividerColor: termbox.ColorMagenta,     
-		PlayerColor:  termbox.ColorBlue,       
-		BotColor:     termbox.ColorYellow,  
-		BallColor:    termbox.ColorGreen | termbox.AttrBold, 
-		TextColor:    termbox.ColorWhite | termbox.AttrBold, 
-		BgColor:      termbox.ColorBlack,   
+		BorderColor:  termbox.ColorCyan,
+		DividerColor: termbox.ColorMagenta,
+		PlayerColor:  termbox.ColorBlue,
+		BotColor:     termbox.ColorYellow,
+		BallColor:    termbox.ColorGreen | termbox.AttrBold,
+		TextColor:    termbox.ColorWhite | termbox.AttrBold,
+		BgColor:      termbox.ColorBlack,
 	},
 	"theme-tree": {
 		BorderColor:  termbox.ColorWhite,
@@ -42,12 +41,12 @@ var Themes = map[string]Theme{
 		BgColor:      termbox.ColorBlack,
 	},
 	"theme-for": {
-		BorderColor:  termbox.ColorCyan,
-		DividerColor: termbox.ColorBlue | termbox.AttrBold,
-		PlayerColor:  termbox.ColorCyan | termbox.AttrBold,
-		BotColor:     termbox.ColorMagenta | termbox.AttrBold,
+		BorderColor:  termbox.ColorRed | termbox.AttrBold,
+		DividerColor: termbox.ColorYellow,
+		PlayerColor:  termbox.ColorMagenta | termbox.AttrBold,
+		BotColor:     termbox.ColorCyan | termbox.AttrBold,
 		BallColor:    termbox.ColorWhite | termbox.AttrBold,
-		TextColor:    termbox.ColorCyan | termbox.AttrBold,
-		BgColor:      termbox.ColorBlue,
+		TextColor:    termbox.ColorYellow | termbox.AttrBold,
+		BgColor:      termbox.ColorRed,
 	},
 }
