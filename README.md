@@ -17,7 +17,7 @@ cd pong_try-it
 
 Build and run:
 ````bash
-go run main.go
+go run .
 ````
 
 Or build a binary:
