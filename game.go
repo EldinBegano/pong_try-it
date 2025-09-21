@@ -59,6 +59,24 @@ func (g *Game) init(config GameConfig, theme Theme) {
 	g.lastUpdate = time.Now()
 }
 
+func (g *Game) reset() {
+	g.width, g.height = termbox.Size()
+	g.ball = Ball{
+		x:  float64(g.width) / 2,
+		y:  float64(g.height) / 2,
+		vx: 0.6,
+		vy: 0.3,
+	}
+	g.leftPaddle.y = g.height/2 - g.config.PaddleHeight/2
+	g.rightPaddle.x = g.width - 3
+	g.rightPaddle.y = g.height/2 - g.config.PaddleHeight/2
+	g.rightPaddle.targetY = float64(g.height/2 - g.config.PaddleHeight/2)
+	g.leftScore = 0
+	g.rightScore = 0
+	g.running = true
+	g.lastUpdate = time.Now()
+}
+
 func (g *Game) update() {
 	now := time.Now()
 	deltaTime := now.Sub(g.lastUpdate).Seconds()
@@ -292,12 +310,14 @@ func runGameLoop(game *Game) {
 
 		if game.leftScore >= 10 || game.rightScore >= 10 {
 			game.running = false
-			showGameOverScreen(game)
+			if showGameOverScreen(game) {
+				game.reset()
+			}
 		}
 	}
 }
 
-func showGameOverScreen(g *Game) {
+func showGameOverScreen(g *Game) bool {
 	termbox.Clear(g.theme.TextColor, g.theme.BgColor)
 	w, h := g.width, g.height
 
@@ -317,6 +337,8 @@ func showGameOverScreen(g *Game) {
 		"╠══════════════════════════╣",
 		fmt.Sprintf("║   %s   ║", winner),
 		fmt.Sprintf("║   Final Score %02d - %02d   ║", g.leftScore, g.rightScore),
+		"║                          ║",
+		"║ Press R to restart        ║",
 		"║ Press ESC to exit         ║",
 		"╚══════════════════════════╝",
 	}
@@ -333,8 +355,16 @@ func showGameOverScreen(g *Game) {
 	termbox.Flush()
 
 	for {
-		if ev := termbox.PollEvent(); ev.Type == termbox.EventKey && ev.Key == termbox.KeyEsc {
-			break
+		ev := termbox.PollEvent()
+		if ev.Type == termbox.EventKey {
+			switch ev.Key {
+			case termbox.KeyEsc:
+				return false
+			}
+			switch ev.Ch {
+			case 'r', 'R':
+				return true
+			}
 		}
 	}
 }
