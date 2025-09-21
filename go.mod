@@ -1,4 +1,4 @@
-module pong
+module terminal-pong
 
 go 1.25.1
 

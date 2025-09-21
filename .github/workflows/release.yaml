@@ -1,0 +1,61 @@
+name: Build and Release
+
+on:
+  release:
+    types: [created]
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        goos: [linux, windows, darwin]
+        goarch: [amd64, arm64]
+        exclude:
+          - goarch: arm64
+            goos: windows
+    
+    steps:
+    - uses: actions/checkout@v4
+    
+    - name: Set up Go
+      uses: actions/setup-go@v4
+      with:
+        go-version: '1.21'
+    
+    - name: Get dependencies
+      run: go mod tidy
+    
+    - name: Build binary
+      env:
+        GOOS: ${{ matrix.goos }}
+        GOARCH: ${{ matrix.goarch }}
+      run: |
+        BINARY_NAME="terminal-pong"
+        if [ "$GOOS" = "windows" ]; then
+          BINARY_NAME="${BINARY_NAME}.exe"
+        fi
+        
+        go build -ldflags="-s -w" -o ${BINARY_NAME}
+        
+        ARCHIVE_NAME="terminal-pong-${GOOS}-${GOARCH}"
+        if [ "$GOOS" = "windows" ]; then
+          ARCHIVE_NAME="${ARCHIVE_NAME}.zip"
+          zip ${ARCHIVE_NAME} ${BINARY_NAME}
+        else
+          ARCHIVE_NAME="${ARCHIVE_NAME}.tar.gz"
+          tar -czf ${ARCHIVE_NAME} ${BINARY_NAME}
+        fi
+        
+        echo "ARCHIVE_NAME=${ARCHIVE_NAME}" >> $GITHUB_ENV
+        echo "BINARY_NAME=${BINARY_NAME}" >> $GITHUB_ENV
+    
+    - name: Upload Release Asset
+      uses: actions/upload-release-asset@v1
+      env:
+        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      with:
+        upload_url: ${{ github.event.release.upload_url }}
+        asset_path: ./${{ env.ARCHIVE_NAME }}
+        asset_name: ${{ env.ARCHIVE_NAME }}
+        asset_content_type: application/octet-stream
