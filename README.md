@@ -31,6 +31,6 @@ go build -o pong
 - Make the ball go random
 - Make the speed of the ball random
 - Multiple Balls
-- Themes
+- Menu Redesign
 - Abilities to use for the player
-- Difficulty settings (impossible, more impossible, unfair, try_it)
+- Difficulty settings (more impossible, unfair, try_it)
